@@ -7,6 +7,12 @@ __pycache__/
 .idea/
 .vscode/
 
+# dbt build output
+dbt/target/
+dbt/dbt_packages/
+dbt/logs/
+dbt/.user.yml
+
 # Never commit keys or tokens
 *.pem
 *.p8
