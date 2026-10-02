@@ -1,0 +1,41 @@
+# Redeploys the Streamlit app when its code changes on the default branch.
+# Snowflake reads the app straight from this repo (Git repository object),
+# so the job only has to: fetch the repo in Snowflake, then run deploy_app.sql.
+#
+# The docs CONTENT is refreshed by a Snowflake task (sql/05_task.sql),
+# not by this pipeline.
+#
+# Required CI/CD variables (Settings > CI/CD > Variables):
+#   SF_ACCOUNT            e.g. xy12345.ap-southeast-2         (masked)
+#   SF_USER               service user with role DBT_DOCS_ADMIN (masked)
+#   SF_PRIVATE_KEY_FILE   type "File", PEM private key        (protected)
+
+stages:
+  - deploy
+
+deploy_streamlit_app:
+  stage: deploy
+  image: python:3.11-slim
+  variables:
+    SF_ROLE: DBT_DOCS_ADMIN
+    SF_WAREHOUSE: DBT_DOCS_WH
+    SF_REPO: ANALYTICS.DBT_DOCS.DBT_DOCS_REPO
+  before_script:
+    - pip install --quiet snowflake-cli
+    - |
+      cat > /tmp/snow.sh <<'EOF'
+      snow sql --temporary-connection \
+        --account "$SF_ACCOUNT" --user "$SF_USER" \
+        --authenticator SNOWFLAKE_JWT --private-key-file "$SF_PRIVATE_KEY_FILE" \
+        --role "$SF_ROLE" --warehouse "$SF_WAREHOUSE" -q "$1"
+      EOF
+  script:
+    - sh /tmp/snow.sh "ALTER GIT REPOSITORY $SF_REPO FETCH"
+    - sh /tmp/snow.sh "EXECUTE IMMEDIATE FROM @$SF_REPO/branches/$CI_DEFAULT_BRANCH/sql/deploy_app.sql"
+  resource_group: dbt-docs-app
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - app/**/*
+        - sql/deploy_app.sql
+    - if: $CI_PIPELINE_SOURCE == "web"   # manual "Run pipeline" button

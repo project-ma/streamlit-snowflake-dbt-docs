@@ -1,0 +1,13 @@
+# Python / editor noise
+__pycache__/
+*.pyc
+.venv/
+.env
+.DS_Store
+.idea/
+.vscode/
+
+# Never commit keys or tokens
+*.pem
+*.p8
+*.key
