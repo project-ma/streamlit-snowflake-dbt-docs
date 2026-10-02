@@ -1,7 +1,7 @@
 -- =====================================================================
--- 04  Procedure: generate static docs on the dbt project object and
---     copy the artifacts zip to the docs stage.
--- If the dbt run fails the procedure errors before touching the stage,
+-- 05  Procedure: pull latest main from GitLab, redeploy the dbt project,
+--     generate static docs, copy the artifacts zip to the docs stage.
+-- If any step fails the procedure errors before touching the stage,
 -- so the app keeps showing the last good docs.
 -- =====================================================================
 USE ROLE DBT_DOCS_ADMIN;
@@ -16,7 +16,12 @@ DECLARE
   qid STRING;
   loc STRING;
 BEGIN
-  EXECUTE DBT PROJECT ANALYTICS.DBT.MY_DBT_PROJECT
+  -- Docs always reflect what's on main right now
+  ALTER GIT REPOSITORY ANALYTICS.DBT_DOCS.DBT_DOCS_REPO FETCH;
+  ALTER DBT PROJECT ANALYTICS.DBT_DOCS.DBT_PROJECT
+    DEPLOY FROM '@ANALYTICS.DBT_DOCS.DBT_DOCS_REPO/branches/main/dbt';
+
+  EXECUTE DBT PROJECT ANALYTICS.DBT_DOCS.DBT_PROJECT
     ARGS = 'docs generate --static --target prod';
 
   qid := LAST_QUERY_ID();

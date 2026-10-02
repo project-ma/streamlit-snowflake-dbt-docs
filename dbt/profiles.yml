@@ -1,0 +1,22 @@
+# Profile used when dbt runs INSIDE Snowflake (dbt project object / Workspaces).
+#
+# - The top-level key must match `profile:` in dbt_project.yml.
+# - account and user are required by dbt but ignored in Snowflake: the project
+#   runs as the current Snowflake user, so any placeholder works.
+# - role must be able to read all sources and models (needed for the docs catalog).
+#
+# Local development: dbt reads this file first because it's in the project
+# folder. To keep using your own ~/.dbt/profiles.yml locally, run
+#   export DBT_PROFILES_DIR=~/.dbt
+my_project:
+  target: prod
+  outputs:
+    prod:
+      type: snowflake
+      account: not_used_in_snowflake
+      user: not_used_in_snowflake
+      role: DBT_TRANSFORMER
+      warehouse: TRANSFORM_WH
+      database: ANALYTICS
+      schema: DBT
+      threads: 4

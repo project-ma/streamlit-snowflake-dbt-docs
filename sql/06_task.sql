@@ -1,5 +1,5 @@
 -- =====================================================================
--- 05  Schedule the docs refresh
+-- 06  Schedule the docs refresh
 -- Daily 06:00 Perth. To refresh straight after your prod build instead,
 -- replace SCHEDULE with:  AFTER ANALYTICS.DBT.<your_prod_build_task>
 -- =====================================================================

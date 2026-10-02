@@ -1,5 +1,5 @@
 -- =====================================================================
--- 03  Stage that holds the generated docs (dbt_artifacts.zip)
+-- 04  Stage that holds the generated docs (dbt_artifacts.zip)
 -- =====================================================================
 USE ROLE DBT_DOCS_ADMIN;
 

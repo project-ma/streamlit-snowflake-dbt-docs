@@ -1,11 +1,11 @@
 -- =====================================================================
 -- 01  Roles, warehouse, schema
 -- Run once as ACCOUNTADMIN (or SECURITYADMIN + SYSADMIN).
--- Replace ANALYTICS / DBT_DOCS / MY_DBT_PROJECT names to suit.
+-- Replace ANALYTICS / DBT_DOCS / DBT_TRANSFORMER names to suit.
 -- =====================================================================
 USE ROLE ACCOUNTADMIN;
 
-CREATE ROLE IF NOT EXISTS DBT_DOCS_ADMIN;   -- owns repo, stage, proc, task, app
+CREATE ROLE IF NOT EXISTS DBT_DOCS_ADMIN;   -- owns repo, dbt project, stage, proc, task, app
 CREATE ROLE IF NOT EXISTS DBT_DOCS_VIEWER;  -- people who open the app
 GRANT ROLE DBT_DOCS_ADMIN TO ROLE SYSADMIN;
 
@@ -23,12 +23,11 @@ GRANT USAGE ON DATABASE ANALYTICS TO ROLE DBT_DOCS_VIEWER;
 GRANT USAGE ON SCHEMA ANALYTICS.DBT_DOCS TO ROLE DBT_DOCS_VIEWER;
 GRANT ALL ON SCHEMA ANALYTICS.DBT_DOCS TO ROLE DBT_DOCS_ADMIN;
 
--- Let the admin role run docs generate on your existing dbt project object.
--- (The project object is deployed from your dbt repo / workspace.)
-GRANT USAGE   ON DATABASE ANALYTICS                       TO ROLE DBT_DOCS_ADMIN;
-GRANT USAGE   ON SCHEMA   ANALYTICS.DBT                   TO ROLE DBT_DOCS_ADMIN;
-GRANT USAGE   ON DBT PROJECT ANALYTICS.DBT.MY_DBT_PROJECT TO ROLE DBT_DOCS_ADMIN;
-GRANT MONITOR ON DBT PROJECT ANALYTICS.DBT.MY_DBT_PROJECT TO ROLE DBT_DOCS_ADMIN;
+-- dbt runs docs generate using the `role:` in dbt/profiles.yml.
+-- That role must be able to read every source and model (for the catalog),
+-- and the admin role must be able to assume it.
+-- Replace DBT_TRANSFORMER with the role your dbt project already uses.
+GRANT ROLE DBT_TRANSFORMER TO ROLE DBT_DOCS_ADMIN;
 
 -- Tasks
 GRANT EXECUTE TASK ON ACCOUNT TO ROLE DBT_DOCS_ADMIN;

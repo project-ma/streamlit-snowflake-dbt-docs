@@ -13,7 +13,7 @@ import streamlit as st
 import streamlit.components.v1 as components
 from snowflake.snowpark.context import get_active_session
 
-# Keep in sync with sql/03_docs_stage.sql and sql/04_refresh_procedure.sql
+# Keep in sync with sql/04_docs_stage.sql and sql/05_refresh_procedure.sql
 DOCS_STAGE = "@ANALYTICS.DBT_DOCS.DOCS_ARTIFACTS"
 ZIP_PATH = f"{DOCS_STAGE}/latest/dbt_artifacts.zip"
 
